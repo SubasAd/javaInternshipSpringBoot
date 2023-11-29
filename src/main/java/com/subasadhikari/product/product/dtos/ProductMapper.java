@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 @Mapper
 public interface ProductMapper {
     @Mapping(target = "id",source="id")
+    @Mapping(target = "price",source = "price")
     @Mapping(target="name",source="name")
     @Mapping(target="description",source = "description")
     @Mapping(target="category",source="category")
