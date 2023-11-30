@@ -1,16 +1,15 @@
 package com.subasadhikari.product.product.dtos;
 
+import ch.qos.logback.core.model.ComponentModel;
 import com.subasadhikari.product.product.entity.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper
+@Mapper(componentModel="spring")
 public interface ProductMapper {
-    @Mapping(target = "id",source="id")
-    @Mapping(target = "price",source = "price")
-    @Mapping(target="name",source="name")
-    @Mapping(target="description",source = "description")
-    @Mapping(target="category",source="category")
+
     ProductDTO productToProductDTO(Product p);
+
+    Product productDTOToProduct(ProductDTO productDTO);
 
 }

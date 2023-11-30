@@ -1,42 +1,57 @@
 package com.subasadhikari.product.product.controller;
 
-import com.subasadhikari.product.product.entity.Product;
+import com.subasadhikari.product.product.dtos.ProductDTO;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.ModelMap;
+
 import org.springframework.web.bind.annotation.*;
 import com.subasadhikari.product.product.service.ProductService;
 
 import java.util.List;
-import java.util.Map;
+
 @RestController
+@ControllerAdvice
 @RequestMapping("/api")
 public class ProductController {
-  @Autowired
+    final
     ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @CrossOrigin
     @GetMapping("/products/{productId}")
-    ResponseEntity<Product> findProduct(@PathVariable Long productId) {
+    ResponseEntity<ProductDTO> findProduct(@PathVariable Long productId) {
         return this.productService.findById(productId);
     }
 
+    @CrossOrigin
     @GetMapping("/products")
-    ResponseEntity<List<Product>> findAllProducts() {
-        final ResponseEntity<List<Product>> all = this.productService.findAll();
-        return all;
+    ResponseEntity<List<ProductDTO>> findAllProducts() {
+        return this.productService.findAll();
     }
 
-    @PostMapping("/admin/products")
-    ResponseEntity<Product> saveProduct(@RequestBody Product product) {
-        productService.Create(product);
-        return ResponseEntity.ok(product);
+    @CrossOrigin
+    @PostMapping("/products")
+    ResponseEntity<ProductDTO> saveProduct(@RequestBody ProductDTO product) {
+        return productService.addNewProduct(product);
+
     }
 
-    @DeleteMapping("/admin/products/{productId}")
-    ResponseEntity<Product> deleteProduct(@PathVariable Long productId) {
+    @CrossOrigin
+    @DeleteMapping("/products/{productId}")
+    ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
         return this.productService.deleteById(productId);
     }
 
+    @CrossOrigin
+    @PutMapping("/products/{id}")
+    ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO product) {
+        return productService.updateProduct(id,product);
+
+    }
 
 
 }

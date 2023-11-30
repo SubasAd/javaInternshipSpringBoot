@@ -1,41 +1,70 @@
 package com.subasadhikari.product.product.service;
 
+import com.subasadhikari.product.product.dtos.ProductDTO;
+import com.subasadhikari.product.product.dtos.ProductMapper;
 import com.subasadhikari.product.product.entity.Product;
+import com.subasadhikari.product.product.repository.ProductRepository;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class ProductServiceImpl implements ProductService{
+    final
+    ProductRepository productRepository;
+    final
+    ProductMapper productMapper;
+
+    public ProductServiceImpl(ProductRepository productRepository, ProductMapper productMapper) {
+        this.productRepository = productRepository;
+        this.productMapper = productMapper;
+    }
+
 
     @Override
-    public ResponseEntity<Product> findById(Long id) {
-        return null;
+    public ResponseEntity<List<ProductDTO>> findAll() {
+        return ResponseEntity.ok(this.productRepository.findAll().stream().map(this.productMapper::productToProductDTO).collect(Collectors.toList()));
     }
 
     @Override
-    public ResponseEntity<List<Product>> findAll() {
-        return null;
+    public ResponseEntity<ProductDTO> findById(long id) {
+        return ResponseEntity.ok(this.productRepository.findById(id).map(this.productMapper::productToProductDTO).get());
     }
 
     @Override
-    public ResponseEntity<Product> deleteById(Long id) {
-        return null;
+    public ResponseEntity<List<ProductDTO>> findByCategory(String category) {
+        List<Product> l = this.productRepository.findByCategory(category);
+         return ResponseEntity.ok(l.stream().map(this.productMapper::productToProductDTO).collect(Collectors.toList()));
     }
 
     @Override
-    public ResponseEntity<Product> Update(Product product) {
-        return null;
+    public ResponseEntity<ProductDTO> addNewProduct(ProductDTO productDTO) {
+        this.productRepository.save(this.productMapper.productDTOToProduct(productDTO));
+        return ResponseEntity.ok(productDTO);
     }
 
     @Override
-    public void Create(Product product) {
-
+    public ResponseEntity<ProductDTO> updateProduct(Long id,ProductDTO productDTO) {
+        Product pr = this.productRepository.getReferenceById(id);
+        pr.setPrice(productDTO.getPrice() != null ? productDTO.getPrice() : pr.getPrice());
+        pr.setName(productDTO.getName() != null ? productDTO.getName() : pr.getName());
+        pr.setDescription(productDTO.getDescription() != null ? productDTO.getDescription() : pr.getDescription());
+        pr.setCategory(productDTO.getCategory() != null ? productDTO.getCategory() : pr.getCategory());
+        this.productRepository.save(pr);
+        return ResponseEntity.ok(this.productMapper.productToProductDTO(pr));
     }
 
     @Override
-    public ResponseEntity<List<Product>> findByTagsName(String tagName) {
-        return null;
+    public ResponseEntity<Void> deleteById(Long id) {
+
+          this.productRepository.deleteById(id);
+
+       return new ResponseEntity<>(HttpStatus.OK);
     }
 }
