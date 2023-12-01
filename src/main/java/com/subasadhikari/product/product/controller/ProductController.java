@@ -39,6 +39,11 @@ public class ProductController {
         return productService.addNewProduct(product);
 
     }
+    @CrossOrigin
+    @GetMapping("/products/category/{category}")
+    ResponseEntity<List<ProductDTO>> findByCategory(@PathVariable String category) {
+        return productService.findByCategory(category);
+    }
 
     @CrossOrigin
     @DeleteMapping("/products/{productId}")

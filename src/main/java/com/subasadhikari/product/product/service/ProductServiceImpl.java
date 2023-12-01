@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,8 +40,19 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public ResponseEntity<List<ProductDTO>> findByCategory(String category) {
-        List<Product> l = this.productRepository.findByCategory(category);
-         return ResponseEntity.ok(l.stream().map(this.productMapper::productToProductDTO).collect(Collectors.toList()));
+        List<Product> l = this.productRepository.findAll();
+        l = l.stream().map((product)->{
+            if(product.getCategory()==null) return null;
+            if(product.getCategory().equals(category)) return product;
+            return null;
+        }).toList();
+        List<Product> pr = new ArrayList<>();
+        for(Product each:l){
+            if(each==null) continue;
+            pr.add(each);
+        }
+
+         return ResponseEntity.ok(pr.stream().map(this.productMapper::productToProductDTO).collect(Collectors.toList()));
     }
 
     @Override
