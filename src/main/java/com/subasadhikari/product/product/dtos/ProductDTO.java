@@ -1,8 +1,6 @@
 package com.subasadhikari.product.product.dtos;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 
 @RequiredArgsConstructor

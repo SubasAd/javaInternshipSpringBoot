@@ -1,6 +1,8 @@
 package com.subasadhikari.product.product.controller;
 
 import com.subasadhikari.product.product.dtos.ProductDTO;
+import com.subasadhikari.product.product.entity.Product;
+import com.subasadhikari.product.product.repository.ProductRepository;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.ResponseEntity;
@@ -16,9 +18,11 @@ import java.util.List;
 public class ProductController {
     final
     ProductService productService;
+    ProductRepository productRepository;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService,ProductRepository productRepository) {
         this.productService = productService;
+         this.productRepository=productRepository;
     }
 
     @CrossOrigin
@@ -57,6 +61,12 @@ public class ProductController {
         return productService.updateProduct(id,product);
 
     }
+    @CrossOrigin
+    @GetMapping("/products/name/{name}")
+    ResponseEntity<List<Product>> findByName(@PathVariable String name) {
+        return ResponseEntity.ok(productRepository.findByName(name));
+    }
+
 
 
 }

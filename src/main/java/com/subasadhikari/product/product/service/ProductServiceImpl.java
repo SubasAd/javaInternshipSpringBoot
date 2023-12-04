@@ -3,20 +3,20 @@ package com.subasadhikari.product.product.service;
 import com.subasadhikari.product.product.dtos.ProductDTO;
 import com.subasadhikari.product.product.dtos.ProductMapper;
 import com.subasadhikari.product.product.entity.Product;
+import com.subasadhikari.product.product.exception.ProductNotFoundException;
 import com.subasadhikari.product.product.repository.ProductRepository;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.net.http.HttpResponse;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
 @Service
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
     final
     ProductRepository productRepository;
     final
@@ -30,29 +30,30 @@ public class ProductServiceImpl implements ProductService{
 
     @Override
     public ResponseEntity<List<ProductDTO>> findAll() {
-        return ResponseEntity.ok(this.productRepository.findAll().stream().map(this.productMapper::productToProductDTO).collect(Collectors.toList()));
+        return ResponseEntity.ok(this.productRepository.findAll()
+                .stream()
+                .map(this.productMapper::productToProductDTO)
+                .collect(Collectors.toList()));
     }
 
     @Override
     public ResponseEntity<ProductDTO> findById(long id) {
-        return ResponseEntity.ok(this.productRepository.findById(id).map(this.productMapper::productToProductDTO).get());
+        return ResponseEntity.ok(this.productRepository.findById(id)
+                .map(this.productMapper::productToProductDTO)
+                .orElseThrow(
+                        () -> new ProductNotFoundException("The product of this Id not found"))
+        );
     }
 
     @Override
     public ResponseEntity<List<ProductDTO>> findByCategory(String category) {
-        List<Product> l = this.productRepository.findAll();
-        l = l.stream().map((product)->{
-            if(product.getCategory()==null) return null;
-            if(product.getCategory().equals(category)) return product;
-            return null;
-        }).toList();
-        List<Product> pr = new ArrayList<>();
-        for(Product each:l){
-            if(each==null) continue;
-            pr.add(each);
-        }
 
-         return ResponseEntity.ok(pr.stream().map(this.productMapper::productToProductDTO).collect(Collectors.toList()));
+        Optional<List<Product>> result = Optional.ofNullable(productRepository.findByCategory(category));
+        List<Product> listOfProduct = result.orElseThrow(() -> new ProductNotFoundException("The product of this Id not found"));
+        return ResponseEntity.ok(listOfProduct
+                .stream()
+                .map(this.productMapper::productToProductDTO)
+                .toList());
     }
 
     @Override
@@ -62,21 +63,28 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ResponseEntity<ProductDTO> updateProduct(Long id,ProductDTO productDTO) {
-        Product pr = this.productRepository.getReferenceById(id);
-        pr.setPrice(productDTO.getPrice() != null ? productDTO.getPrice() : pr.getPrice());
-        pr.setName(productDTO.getName() != null ? productDTO.getName() : pr.getName());
-        pr.setDescription(productDTO.getDescription() != null ? productDTO.getDescription() : pr.getDescription());
-        pr.setCategory(productDTO.getCategory() != null ? productDTO.getCategory() : pr.getCategory());
+    public ResponseEntity<ProductDTO> updateProduct(Long id, ProductDTO productDTO) {
+        Product pr = getProduct(id, productDTO);
         this.productRepository.save(pr);
         return ResponseEntity.ok(this.productMapper.productToProductDTO(pr));
     }
 
+    private Product getProduct(Long id, ProductDTO productDTO) {
+        Optional<Product> optPr = this.productRepository.findById(id);
+        Product pr = optPr.orElseThrow(() -> new ProductNotFoundException("The product of this Id not found"));
+        pr.setPrice(productDTO.getPrice() != null ? productDTO.getPrice() : pr.getPrice());
+        pr.setName(productDTO.getName() != null ? productDTO.getName() : pr.getName());
+        pr.setDescription(productDTO.getDescription() != null ? productDTO.getDescription() : pr.getDescription());
+        pr.setCategory(productDTO.getCategory() != null ? productDTO.getCategory() : pr.getCategory());
+        return pr;
+    }
+
     @Override
     public ResponseEntity<Void> deleteById(Long id) {
+        Optional<Product> optPr = this.productRepository.findById(id);
+        Product pr = optPr.orElseThrow(() -> new ProductNotFoundException("The product of this Id not found"));
+        this.productRepository.deleteById(pr.getId());
 
-          this.productRepository.deleteById(id);
-
-       return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
