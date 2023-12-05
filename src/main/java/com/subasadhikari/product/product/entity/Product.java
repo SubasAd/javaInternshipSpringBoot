@@ -8,9 +8,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@Getter
-@Setter
-@RequiredArgsConstructor
+
 @Entity
 public class Product {
 
@@ -30,6 +28,17 @@ public class Product {
     public Double getPrice() {
 
         return price;
+    }
+
+    public Product() {
+    }
+
+    public Product(Long id, Double price, String name, String description, String category) {
+        this.id = id;
+        this.price = price;
+        this.name = name;
+        this.description = description;
+        this.category = category;
     }
 
     public void setPrice(Double price) {

@@ -58,8 +58,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<ProductDTO> addNewProduct(ProductDTO productDTO) {
-        this.productRepository.save(this.productMapper.productDTOToProduct(productDTO));
-        return ResponseEntity.ok(productDTO);
+        System.out.println(productDTO);
+       Product pr =  this.productRepository.save(this.productMapper.productDTOToProduct(productDTO));
+        return ResponseEntity.ok(this.productMapper.productToProductDTO(pr));
     }
 
     @Override

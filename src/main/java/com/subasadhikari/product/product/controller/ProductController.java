@@ -40,8 +40,10 @@ public class ProductController {
     @CrossOrigin
     @PostMapping("/products")
     ResponseEntity<ProductDTO> saveProduct(@RequestBody ProductDTO product) {
-        return productService.addNewProduct(product);
-
+        System.out.println(product);
+        ResponseEntity re =  productService.addNewProduct(product);
+        System.out.println(re.getBody());
+        return re;
     }
     @CrossOrigin
     @GetMapping("/products/category/{category}")

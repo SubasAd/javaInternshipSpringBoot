@@ -1,9 +1,7 @@
 package com.subasadhikari.product.product.dtos;
 
-import lombok.RequiredArgsConstructor;
 
 
-@RequiredArgsConstructor
 
 public class ProductDTO {
     private Long id;
@@ -11,6 +9,17 @@ public class ProductDTO {
     private String name;
     private String description;
     private String category;
+
+    public ProductDTO() {
+    }
+
+    public ProductDTO(Long id, Double price, String name, String description, String category) {
+        this.id = id;
+        this.price = price;
+        this.name = name;
+        this.description = description;
+        this.category = category;
+    }
 
     public long getId() {
         return id;
