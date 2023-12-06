@@ -6,6 +6,7 @@ import com.subasadhikari.product.product.entity.Product;
 import com.subasadhikari.product.product.exception.ProductNotFoundException;
 import com.subasadhikari.product.product.repository.ProductRepository;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -94,7 +95,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<List<ProductDTO>> findAll(PageRequest pageable) {
-        var productPage = this.productRepository.findAll(pageable);
+        Page<Product> productPage = this.productRepository.findAll(pageable);
         return ResponseEntity.ok(productPage
                 .stream()
                 .map(this.productMapper::productToProductDTO)

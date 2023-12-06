@@ -11,12 +11,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -140,7 +143,40 @@ public class ServiceTest {
         assertThrows(ProductNotFoundException.class,()->this.productService.deleteById(5L), "Id is not in db");
 
     }
+    @Test
+    public void testFindAllWithParams(){
+
+        PageRequest pageable = PageRequest.of(1,2, Sort.Direction.ASC,"name");
+
+
+        List<Product> productList = List.of(
+                new Product(1L, 495D,"Product1","Desc1","cat1"),
+                new Product(2L, 500D,"Product2","Desc2","cat2")
+        );
+        Page<Product> productPage = new PageImpl<>(productList);
+
+
+        when(this.productRepository.findAll(any(PageRequest.class))).thenReturn(productPage);
+
+
+        List<ProductDTO> productDTOList = List.of(
+                new ProductDTO(1L, 495D,"Product1","Desc1","cat1"),
+                new ProductDTO(2L, 500D,"Product2","Desc2","cat2")
+        );
+        when(productMapper.productToProductDTO(productList.get(0))).thenReturn(productDTOList.get(0));
+        when(productMapper.productToProductDTO(productList.get(1))).thenReturn(productDTOList.get(1));
+
+        ResponseEntity<List<ProductDTO>> responseEntity = this.productService.findAll(pageable);
+
+        assertEquals("Expected to be ok",200, responseEntity.getStatusCodeValue());
+
+
+        List<ProductDTO> responseBody = responseEntity.getBody();
+        assertEquals("Checking Size",productDTOList.size(), responseBody.size());
+        assertEquals("Checking Object",productDTOList.toString(), responseBody.toString());
+    }
+
+         }
 
 
 
-}
