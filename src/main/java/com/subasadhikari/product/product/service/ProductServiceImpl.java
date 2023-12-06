@@ -6,6 +6,7 @@ import com.subasadhikari.product.product.entity.Product;
 import com.subasadhikari.product.product.exception.ProductNotFoundException;
 import com.subasadhikari.product.product.repository.ProductRepository;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 
 @Service
@@ -33,7 +36,7 @@ public class ProductServiceImpl implements ProductService {
         return ResponseEntity.ok(this.productRepository.findAll()
                 .stream()
                 .map(this.productMapper::productToProductDTO)
-                .collect(Collectors.toList()));
+                .collect(toList()));
     }
 
     @Override
@@ -87,5 +90,15 @@ public class ProductServiceImpl implements ProductService {
         this.productRepository.deleteById(pr.getId());
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<ProductDTO>> findAll(PageRequest pageable) {
+        var productPage = this.productRepository.findAll(pageable);
+        return ResponseEntity.ok(productPage
+                .stream()
+                .map(this.productMapper::productToProductDTO)
+                .toList()
+        );
     }
 }

@@ -2,6 +2,7 @@ package com.subasadhikari.product.product.service;
 
 import com.subasadhikari.product.product.dtos.ProductDTO;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 
 
@@ -14,6 +15,8 @@ public interface ProductService {
     ResponseEntity<ProductDTO> addNewProduct(ProductDTO productDTO);
     ResponseEntity<ProductDTO> updateProduct(Long id,ProductDTO productDTO);
     ResponseEntity<Void> deleteById(Long id);
+    ResponseEntity<List<ProductDTO>>findAll(PageRequest pageable);
+
 
 
 

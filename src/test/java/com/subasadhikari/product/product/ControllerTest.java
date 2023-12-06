@@ -117,6 +117,11 @@ public class ControllerTest {
                 .andExpect(jsonPath("$.description").value("Very nice clothes"))
                 .andExpect(jsonPath("$.category").value("clothes"));
     }
+    @Test
+    public void findProductwithQueries()
+    {
+
+    }
 
 
 

@@ -3,6 +3,8 @@ package com.subasadhikari.product.product.controller;
 import com.subasadhikari.product.product.dtos.ProductDTO;
 import com.subasadhikari.product.product.entity.Product;
 import com.subasadhikari.product.product.repository.ProductRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.RestController;
 
 import org.springframework.http.ResponseEntity;
@@ -31,11 +33,11 @@ public class ProductController {
         return this.productService.findById(productId);
     }
 
-    @CrossOrigin
-    @GetMapping("/products")
-    ResponseEntity<List<ProductDTO>> findAllProducts() {
-        return this.productService.findAll();
-    }
+//    @CrossOrigin
+//    @GetMapping("/products")
+//    ResponseEntity<List<ProductDTO>> findAllProducts() {
+//        return this.productService.findAll();
+//    }
 
     @CrossOrigin
     @PostMapping("/products")
@@ -64,10 +66,19 @@ public class ProductController {
 
     }
     @CrossOrigin
-    @GetMapping("/products/name/{name}")
-    ResponseEntity<List<Product>> findByName(@PathVariable String name) {
-        return ResponseEntity.ok(productRepository.findByName(name));
+    @GetMapping("/products")
+    ResponseEntity<List<ProductDTO>> findProductwithQueries(
+
+            @RequestParam(name = "pageNumber", required = false, defaultValue = "1") int pageNumber,
+            @RequestParam(name = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(name = "sort", required = false, defaultValue = "name") String sort,
+            @RequestParam(name = "direction", required = false, defaultValue = "ASC") String direction
+    )
+    {
+        var pageRequestData = PageRequest.of(pageNumber - 1, size, Sort.Direction.valueOf(direction), sort);
+        return this.productService.findAll(pageRequestData);
     }
+
 
 
 
