@@ -33,11 +33,11 @@ public class ProductController {
         return this.productService.findById(productId);
     }
 
-//    @CrossOrigin
-//    @GetMapping("/products")
-//    ResponseEntity<List<ProductDTO>> findAllProducts() {
-//        return this.productService.findAll();
-//    }
+    @CrossOrigin
+    @GetMapping("/products")
+    ResponseEntity<List<ProductDTO>> findAllProducts() {
+        return this.productService.findAll();
+    }
 
     @CrossOrigin
     @PostMapping("/products")
@@ -66,7 +66,7 @@ public class ProductController {
 
     }
     @CrossOrigin
-    @GetMapping("/products")
+    @GetMapping("/products/query")
     ResponseEntity<List<ProductDTO>> findProductwithQueries(
 
             @RequestParam(name = "pageNumber", required = false, defaultValue = "1") int pageNumber,

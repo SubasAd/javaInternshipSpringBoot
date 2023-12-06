@@ -44,7 +44,7 @@ public class ControllerTest {
             mockMvc.perform(get("/api/products")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-            mockMvc.perform(get("/api/products?pageNumber=1&size=2&sort=price&direction=ASC")
+            mockMvc.perform(get("/api/products/query?pageNumber=1&size=2&sort=price&direction=ASC")
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk());
 
