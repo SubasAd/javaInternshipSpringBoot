@@ -40,9 +40,14 @@ public class ControllerTest {
     public void testFindAllProducts() throws Exception {
             List<ProductDTO> prd = new ArrayList<>();
             when(productService.findAll()).thenReturn(ResponseEntity.ok(prd));
+            when(productService.findAll(any())).thenReturn(ResponseEntity.ok(prd));
             mockMvc.perform(get("/api/products")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+            mockMvc.perform(get("/api/products?pageNumber=1&size=2&sort=price&direction=ASC")
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk());
+
 
     }
     @Test
@@ -79,6 +84,7 @@ public class ControllerTest {
                 .andExpect(jsonPath("$.description").value("Very nice clothes"))
                 .andExpect(jsonPath("$.category").value("clothes"));
     }
+
     @Test
     public void testFindByCategory() throws Exception {
         List<ProductDTO> productDTOS = new ArrayList<>();
@@ -117,11 +123,7 @@ public class ControllerTest {
                 .andExpect(jsonPath("$.description").value("Very nice clothes"))
                 .andExpect(jsonPath("$.category").value("clothes"));
     }
-    @Test
-    public void findProductwithQueries()
-    {
 
-    }
 
 
 
