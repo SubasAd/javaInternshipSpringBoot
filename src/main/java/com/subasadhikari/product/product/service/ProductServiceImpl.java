@@ -49,8 +49,8 @@ public class ProductServiceImpl implements ProductService {
     public ResponseEntity<List<ProductDTO>> findByCategory(String category) {
 
         Optional<List<Product>> result = Optional.ofNullable(productRepository.findByCategory(category));
-        List<Product> listOfProduct = result.orElseThrow(() -> new ProductNotFoundException("The product of this Id not found"));
-        return ResponseEntity.ok(listOfProduct
+
+        return ResponseEntity.ok(result.get()
                 .stream()
                 .map(this.productMapper::productToProductDTO)
                 .toList());
@@ -58,9 +58,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ResponseEntity<ProductDTO> addNewProduct(ProductDTO productDTO) {
-        System.out.println(productDTO);
+
        Product pr =  this.productRepository.save(this.productMapper.productDTOToProduct(productDTO));
-        return ResponseEntity.ok(this.productMapper.productToProductDTO(pr));
+       return ResponseEntity.ok(this.productMapper.productToProductDTO(pr));
     }
 
     @Override
