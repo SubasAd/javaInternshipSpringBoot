@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.subasadhikari.product.product.controller.ProductController;
 import com.subasadhikari.product.product.dtos.ProductDTO;
 import com.subasadhikari.product.product.dtos.ProductMapper;
+import com.subasadhikari.product.product.entity.Product;
 import com.subasadhikari.product.product.repository.ProductRepository;
 import com.subasadhikari.product.product.service.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -37,10 +38,9 @@ public class ControllerTest {
     private ProductMapper productMapper;
 
     @Test
-    public void testFindAllProducts() throws Exception {
-            List<ProductDTO> prd = new ArrayList<>();
-            when(productService.findAll()).thenReturn(ResponseEntity.ok(prd));
-            when(productService.findAll(any())).thenReturn(ResponseEntity.ok(prd));
+    public void givenProducts_whenGetProducts_thenStatus200() throws Exception {
+            List<Product> prd = new ArrayList<>();
+            when(productService.findAll()).thenReturn(prd);
             mockMvc.perform(get("/api/products")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -51,10 +51,9 @@ public class ControllerTest {
 
     }
     @Test
-    public void testFindProduct() throws Exception{
-        ProductDTO productDTO = new ProductDTO();
-        productDTO.setId(1L);
-        when(productService.findById(1L)).thenReturn(ResponseEntity.ok(productDTO));
+    public void givenProduct_whenGetProductId_status200() throws Exception{
+        Product product = new Product(1L,195D," "," "," ");
+        when(productService.findById(1L)).thenReturn(product);
         mockMvc.perform(get("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -63,14 +62,16 @@ public class ControllerTest {
 
     }
     @Test
-    public void testSaveProduct() throws Exception {
-        ProductDTO prd = new ProductDTO();
-        prd.setId(1L);
+    public void givenSavedProduct_WhenPostProduct_Status200() throws Exception {
+        Product prd = new Product();
+
         prd.setCategory("clothes");
         prd.setDescription("Very nice clothes");
         prd.setPrice(965.2D);
         prd.setName("T-shirt");
-        when(productService.addNewProduct(any(ProductDTO.class))).thenReturn(ResponseEntity.ok(prd));
+
+
+        when(productService.addNewProduct(any(ProductDTO.class))).thenReturn(prd);
 
         String mp = new ObjectMapper().writeValueAsString(prd);
 
@@ -78,7 +79,6 @@ public class ControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mp))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.price").value(965.2))
                 .andExpect(jsonPath("$.name").value("T-shirt"))
                 .andExpect(jsonPath("$.description").value("Very nice clothes"))
@@ -86,30 +86,27 @@ public class ControllerTest {
     }
 
     @Test
-    public void testFindByCategory() throws Exception {
-        List<ProductDTO> productDTOS = new ArrayList<>();
-        when(productService.findByCategory("tshirt")).thenReturn(ResponseEntity.ok(productDTOS));
+    public void givenProductOfCategory_whenGetProductByCategory_Status200() throws Exception {
+        List<Product> product = new ArrayList<>();
+        when(productService.findByCategory("tshirt")).thenReturn(product);
         mockMvc.perform(get("/api/products/category/tshirt")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
     @Test
-    public void testDeleteProduct() throws Exception{
-        when(productService.deleteById(5L)).thenReturn(new ResponseEntity(HttpStatus.OK));
+    public void givenDeletedProduct_whenDeleteById_status200() throws Exception{
+        Product  product = new Product(5L,195D,"Soap","Very nice Soap","Hygiene");
+        when(productService.deleteById(5L)).thenReturn(product);
         mockMvc.perform(delete("/api/products/5")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
     @Test
-    public void testUpdateProduct() throws Exception
+    public void givenUpdatedProduct_whenPutProductId_status200() throws Exception
     {
-        ProductDTO prd = new ProductDTO();
-        prd.setId(1L);
-        prd.setCategory("clothes");
-        prd.setDescription("Very nice clothes");
-        prd.setPrice(965.2D);
-        prd.setName("T-shirt");
-        when(productService.updateProduct(any(Long.class),any(ProductDTO.class))).thenReturn(ResponseEntity.ok(prd));
+        Product prd = new Product(1L, 965.2D,"T-shirt","Very nice clothes","clothes");
+
+        when(productService.updateProduct(any(Long.class),any(ProductDTO.class))).thenReturn(prd);
 
         String mp = new ObjectMapper().writeValueAsString(prd);
 

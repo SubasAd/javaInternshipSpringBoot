@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 
 @Service
@@ -33,73 +30,68 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public ResponseEntity<List<ProductDTO>> findAll() {
-        return ResponseEntity.ok(this.productRepository.findAll()
-                .stream()
-                .map(this.productMapper::productToProductDTO)
-                .collect(toList()));
+    public List<Product> findAll() {
+        return this.productRepository.findAll();
     }
 
     @Override
-    public ResponseEntity<ProductDTO> findById(long id) {
-        return ResponseEntity.ok(this.productRepository.findById(id)
-                .map(this.productMapper::productToProductDTO)
+    public Product findById(long id) {
+        return this.productRepository.findById(id)
                 .orElseThrow(
-                        () -> new ProductNotFoundException("The product of this Id not found"))
-        );
+                        () -> new ProductNotFoundException("The product of this Id not found"));
     }
 
     @Override
-    public ResponseEntity<List<ProductDTO>> findByCategory(String category) {
+    public List<Product> findByCategory(String category) {
 
         Optional<List<Product>> result = Optional.ofNullable(productRepository.findByCategory(category));
 
-        return ResponseEntity.ok(result.get()
-                .stream()
-                .map(this.productMapper::productToProductDTO)
-                .toList());
+        return result.get();
     }
 
     @Override
-    public ResponseEntity<ProductDTO> addNewProduct(ProductDTO productDTO) {
+    public Product addNewProduct(ProductDTO productDTO) {
 
        Product pr =  this.productRepository.save(this.productMapper.productDTOToProduct(productDTO));
-       return ResponseEntity.ok(this.productMapper.productToProductDTO(pr));
+       return pr;
     }
 
     @Override
-    public ResponseEntity<ProductDTO> updateProduct(Long id, ProductDTO productDTO) {
+    public Product updateProduct(Long id, ProductDTO productDTO) {
         Product pr = getProduct(id, productDTO);
         this.productRepository.save(pr);
-        return ResponseEntity.ok(this.productMapper.productToProductDTO(pr));
+        return pr;
     }
 
     private Product getProduct(Long id, ProductDTO productDTO) {
         Optional<Product> optPr = this.productRepository.findById(id);
         Product pr = optPr.orElseThrow(() -> new ProductNotFoundException("The product of this Id not found"));
-        pr.setPrice(productDTO.getPrice() != null ? productDTO.getPrice() : pr.getPrice());
-        pr.setName(productDTO.getName() != null ? productDTO.getName() : pr.getName());
-        pr.setDescription(productDTO.getDescription() != null ? productDTO.getDescription() : pr.getDescription());
-        pr.setCategory(productDTO.getCategory() != null ? productDTO.getCategory() : pr.getCategory());
+        extracted(productDTO, pr);
         return pr;
     }
 
+    private static void extracted(ProductDTO productDTO, Product pr) {
+        pr.setPrice(productDTO.getPrice() != null ? productDTO.getPrice() : pr.getPrice());
+        pr.setName(CheckNullElse.getName(pr, productDTO));
+        pr.setDescription(CheckNullElse.getDescription(pr,productDTO));
+        pr.setCategory(CheckNullElse.getCategory(pr,productDTO));
+    }
+
+
     @Override
-    public ResponseEntity<Void> deleteById(Long id) {
+    public Product deleteById(Long id) {
         Optional<Product> optPr = this.productRepository.findById(id);
         Product pr = optPr.orElseThrow(() -> new ProductNotFoundException("The product of this Id not found"));
         this.productRepository.deleteById(pr.getId());
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return optPr.get();
     }
 
     @Override
-    public ResponseEntity<List<ProductDTO>> findAll(PageRequest pageable) {
+    public List<Product> findAll(PageRequest pageable) {
         Page<Product> productPage = this.productRepository.findAll(pageable);
-        return ResponseEntity.ok(productPage
+        return productPage
                 .stream()
-                .map(this.productMapper::productToProductDTO)
-                .toList()
-        );
+                .toList();
     }
 }

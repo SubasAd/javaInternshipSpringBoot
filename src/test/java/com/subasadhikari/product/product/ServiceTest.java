@@ -40,38 +40,40 @@ public class ServiceTest {
         MockitoAnnotations.openMocks(this);
     }
     @Test
-    public void testFindAll(){
+    public void whenFindAllProducts_shouldReturnListOfAllProducts(){
 
         List<Product> products= new ArrayList<>();
         products.add(new Product());
         when(this.productRepository.findAll()).thenReturn(products);
 
-        ResponseEntity<List<ProductDTO>> outputAllProducts = productService.findAll();
+        List<Product> outputAllProducts = productService.findAll();
 
-        assertNotNull("The provided object shouldn't be null",outputAllProducts.getBody());
-        assertEquals("One item has been inserted",outputAllProducts.getBody().size(),1);
+        assertNotNull("The provided object shouldn't be null",outputAllProducts);
+        assertEquals("One item has been inserted",outputAllProducts.size(),1);
     }
+
+
     @Test
-    public void testFindById(){
+    public void givenId_shouldReturnProductOfThatId(){
       Product  product = new Product(5L,195D,"Soap","Very nice Soap","Hygiene");
       ProductDTO productDTO = new ProductDTO(5L,195D,"Soap","Very nice Soap","Hygiene");
       when(this.productRepository.findById(5L)).thenReturn(Optional.of(product));
       when(this.productMapper.productToProductDTO(any())).thenReturn(productDTO);
 
-      ResponseEntity<ProductDTO> productDTOResponseEntity =productService.findById(5L);
+      Product  productFromService =productService.findById(5L);
 
-      assertEquals("The productDTO must have id 5 and all specifications as product object",productDTOResponseEntity.getBody().getId(),5L);
+      assertEquals("The productDTO must have id 5 and all specifications as product object",productFromService.getId(),5L);
 
     }
     @Test
-    public void testFindByIdProductNotFoundException(){
+    public void whenProductIdNotInDb_ShouldReturnProductNotFoundException(){
         when(this.productRepository.findById(5L)).thenReturn(Optional.empty());
         assertThrows(ProductNotFoundException.class,()->productService.findById(5L));
 
     }
 
     @Test
-    public void testFindByCategory()
+    public void givenCategory_shouldReturnListOfProductsOfCategory()
     {
 
         Product  product = new Product(5L,195D,"Soap","Very nice Soap","Hygiene");
@@ -83,11 +85,11 @@ public class ServiceTest {
         when(this.productMapper.productToProductDTO(any())).thenReturn(productDTO);
 
 
-        assertEquals("The name of first product of the result should be soap",productService.findByCategory("Hygiene").getBody().get(0).getName(),"Soap");
+        assertEquals("The name of first product of the result should be soaps category hygiene and that ha",productService.findByCategory("Hygiene").get(0).getCategory(),"Hygiene");
 
     }
     @Test
-    public void testAddNewProduct()
+    public void givenNewProduct_inAddNewProduct_shouldReturnTheAddedProductWithId()
     {
         Product  product = new Product(5L,195D,"Soap","Very nice Soap","Hygiene");
         ProductDTO productDTO = new ProductDTO(5L,195D,"Soap","Very nice Soap","Hygiene");
@@ -97,12 +99,12 @@ public class ServiceTest {
         when(this.productMapper.productToProductDTO(any())).thenReturn(productDTO);
 
 
-        ResponseEntity<ProductDTO> responseEntity = this.productService.addNewProduct(productDTO);
-        assertEquals("The name of product of the result should be soap",responseEntity.getBody().getName(),"Soap");
-
+        Product pr = this.productService.addNewProduct(productDTO);
+        assertEquals("The name of product of the result should be soap",pr.getName(),"Soap");
+        assertEquals("The name of product of the result should be soap",pr.getId(),5L);
     }
     @Test
-    public void testUpdateProduct()
+    public void givenProduct_inUpdateProduct_shouldUpdateTheGivenProduct()
     {
         Product  product = new Product(5L,195D,"Soap","Very nice Soap","Hygiene");
         ProductDTO productDTO = new ProductDTO(5L,250D,"Soap","Very nice Soap","Hygiene");
@@ -113,16 +115,16 @@ public class ServiceTest {
         when(this.productMapper.productToProductDTO(any())).thenReturn(productDTO);
         when(this.productRepository.findById(5L)).thenReturn(Optional.of(product));
 
-        assertEquals("The price should be updated to 250",this.productService.updateProduct(5L,updatedDTO).getBody().getPrice(),250D);
+        assertEquals("The price should be updated to 250",this.productService.updateProduct(5L,updatedDTO).getPrice(),250D);
     }
     @Test
-    public void testUpdateProductWithException()
+    public void whenUpdate_ifNoProductInDB_shouldThrowException()
     {
         when(this.productRepository.findById(5L)).thenReturn(Optional.empty());
         assertThrows(ProductNotFoundException.class,()->{productService.updateProduct(5L,new ProductDTO());});
     }
     @Test
-    public void testDeleteById()
+    public void getId_whenDelete_shouldReturnDeletedProduct()
     {
         Product  product = new Product(5L,195D,"Soap","Very nice Soap","Hygiene");
         ProductDTO productDTO = new ProductDTO(5L,250D,"Soap","Very nice Soap","Hygiene");
@@ -132,11 +134,11 @@ public class ServiceTest {
         when(this.productMapper.productToProductDTO(any())).thenReturn(productDTO);
         when(this.productRepository.findById(5L)).thenReturn(Optional.of(product));
 
-        assertEquals("After Deletion object should return ok",this.productService.deleteById(5L).getStatusCode(), HttpStatus.OK);
+        assertEquals("After Deletion,deleted object should be returned",this.productService.deleteById(5L).getId(),5L);
 
     }
     @Test
-    public void testDeleteByIdWithException()
+    public void getId_whenProductNotInDb_shouldThrowProductNotFoundException()
     {
         when(this.productRepository.findById(5L)).thenReturn(Optional.empty());
 
@@ -144,7 +146,7 @@ public class ServiceTest {
 
     }
     @Test
-    public void testFindAllWithParams(){
+    public void givenPageNumber1PageSize2_shouldReturn2Products(){
 
         PageRequest pageable = PageRequest.of(1,2, Sort.Direction.ASC,"name");
 
@@ -166,14 +168,10 @@ public class ServiceTest {
         when(productMapper.productToProductDTO(productList.get(0))).thenReturn(productDTOList.get(0));
         when(productMapper.productToProductDTO(productList.get(1))).thenReturn(productDTOList.get(1));
 
-        ResponseEntity<List<ProductDTO>> responseEntity = this.productService.findAll(pageable);
-
-        assertEquals("Expected to be ok",200, responseEntity.getStatusCodeValue());
+        List<Product> products = this.productService.findAll(pageable);
 
 
-        List<ProductDTO> responseBody = responseEntity.getBody();
-        assertEquals("Checking Size",productDTOList.size(), responseBody.size());
-        assertEquals("Checking Object",productDTOList.toString(), responseBody.toString());
+        assertEquals("Checking Size",productDTOList.size(), products.size());
     }
 
          }
