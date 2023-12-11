@@ -165,6 +165,8 @@ public class ServiceTest {
                 new ProductDTO(1L, 495D,"Product1","Desc1","cat1"),
                 new ProductDTO(2L, 500D,"Product2","Desc2","cat2")
         );
+
+
         when(productMapper.productToProductDTO(productList.get(0))).thenReturn(productDTOList.get(0));
         when(productMapper.productToProductDTO(productList.get(1))).thenReturn(productDTOList.get(1));
 

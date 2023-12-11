@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import com.subasadhikari.product.product.service.ProductService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @ControllerAdvice
@@ -25,9 +26,10 @@ public class ProductController {
     ProductService productService;
     ProductRepository productRepository;
     ProductMapper productMapper;
-    public ProductController(ProductService productService,ProductRepository productRepository) {
+    public ProductController(ProductService productService,ProductRepository productRepository,ProductMapper productMapper) {
         this.productService = productService;
          this.productRepository=productRepository;
+         this.productMapper = productMapper;
     }
 
     @CrossOrigin
@@ -41,7 +43,10 @@ public class ProductController {
     @GetMapping("/products")
     ResponseEntity<List<ProductDTO>> findAllProducts() {
          List<Product> products = this.productService.findAll();
-       return  ResponseEntity.ok(products.stream().map(productMapper::productToProductDTO).toList());
+       return  ResponseEntity.ok(products
+               .stream()
+               .map(productMapper::productToProductDTO)
+               .collect(Collectors.toList()));
     }
 
     @CrossOrigin

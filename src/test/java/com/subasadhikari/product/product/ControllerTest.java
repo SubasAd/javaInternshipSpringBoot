@@ -30,17 +30,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ControllerTest {
     @MockBean
     private ProductServiceImpl productService;
-    @MockBean
-    private ProductRepository productRepository;
     @Autowired
     private MockMvc mockMvc ;
-    @Mock
+    @MockBean
     private ProductMapper productMapper;
 
     @Test
     public void givenProducts_whenGetProducts_thenStatus200() throws Exception {
             List<Product> prd = new ArrayList<>();
+            List<ProductDTO> productDTOS = new ArrayList<>();
+
             when(productService.findAll()).thenReturn(prd);
+            when(productMapper.productToProductDTO(any())).thenReturn(new ProductDTO());
+
             mockMvc.perform(get("/api/products")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -53,7 +55,13 @@ public class ControllerTest {
     @Test
     public void givenProduct_whenGetProductId_status200() throws Exception{
         Product product = new Product(1L,195D," "," "," ");
+        ProductDTO prd = new ProductDTO(1L,195D," "," "," ");
+
+
         when(productService.findById(1L)).thenReturn(product);
+        when(productMapper.productToProductDTO(any())).thenReturn(prd);
+
+
         mockMvc.perform(get("/api/products/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -70,8 +78,12 @@ public class ControllerTest {
         prd.setPrice(965.2D);
         prd.setName("T-shirt");
 
+        ProductDTO productDTO = new ProductDTO(1L,965.2D,"T-shirt","Very nice clothes","clothes");
+
 
         when(productService.addNewProduct(any(ProductDTO.class))).thenReturn(prd);
+        when(productMapper.productToProductDTO(any())).thenReturn(productDTO);
+
 
         String mp = new ObjectMapper().writeValueAsString(prd);
 
@@ -105,8 +117,12 @@ public class ControllerTest {
     public void givenUpdatedProduct_whenPutProductId_status200() throws Exception
     {
         Product prd = new Product(1L, 965.2D,"T-shirt","Very nice clothes","clothes");
+        ProductDTO productDTO = new ProductDTO(1L, 965.2D,"T-shirt","Very nice clothes","clothes");
+
 
         when(productService.updateProduct(any(Long.class),any(ProductDTO.class))).thenReturn(prd);
+        when(productMapper.productToProductDTO(any())).thenReturn(productDTO);
+
 
         String mp = new ObjectMapper().writeValueAsString(prd);
 
